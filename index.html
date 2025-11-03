@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌷 Lista de Asistencia</title>
+  <style>
+    body {
+      background: #ffeef3;
+      font-family: "Poppins", sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #ffb6d9, #ffd8e6);
+      color: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 25px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #ff8cbf;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #d63384;
+      transform: scale(1.05);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #f3c5d6;
+      text-align: center;
+      padding: 8px;
+    }
+    th {
+      background-color: #fbe3ef;
+      color: #d63384;
+    }
+    td input[type="text"] {
+      border: none;
+      background: #fff0f6;
+      padding: 6px;
+      width: 90%;
+      border-radius: 6px;
+      text-align: center;
+    }
+    select {
+      border-radius: 8px;
+      border: 1px solid #f3a6c1;
+      background: #fff9fb;
+      padding: 5px;
+    }
+    tfoot {
+      background-color: #ffe6f0;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      color: #777;
+      font-size: 0.9em;
+      margin-top: 20px;
+    }
+    .fadeIn {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌸 Lista de Asistencia - Segundo Parcial 🌸</h1>
+  </header>
+  <main class="fadeIn">
+    <div class="buttons">
+      <button onclick="agregarAlumno()">+ Agregar Alumno</button>
+      <button onclick="agregarDia()">+ Agregar Día</button>
+      <button onclick="calcularTotales()">📊 Calcular Totales</button>
+      <button onclick="borrarDatos()">🧹 Limpiar Datos</button>
+    </div>
+    <table id="tablaAsistencia">
+      <thead>
+        <tr id="encabezado">
+          <th>Nombre</th>
+          <th>Día 1</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpo">
+        <tr>
+          <td><input type="text" placeholder="Nombre completo"></td>
+          <td>
+            <select>
+              <option value="1">✔️ Asistió</option>
+              <option value="0.5">🕓 Retardo</option>
+              <option value="0">❌ Falta</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Total / %</td>
+          <td id="resultadoDias" colspan="1">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </main>
+  <div class="footer">
+    <p>Hecho con 💕 | Proyecto de Asistencia - Segundo Parcial</p>
+  </div>
+
+  <script>
+    const tabla = document.getElementById('tablaAsistencia');
+    const cuerpo = document.getElementById('cuerpo');
+    const encabezado = document.getElementById('encabezado');
+    const resultadoDias = document.getElementById('resultadoDias');
+
+    let numDias = 1;
+
+    function agregarDia() {
+      numDias++;
+      // agregar cabecera
+      const th = document.createElement('th');
+      th.textContent = "Día " + numDias;
+      encabezado.appendChild(th);
+
+      // agregar celda a cada alumno
+      const filas = cuerpo.querySelectorAll('tr');
+      filas.forEach(fila => {
+        const td = document.createElement('td');
+        td.innerHTML = `
+          <select>
+            <option value="1">✔️ Asistió</option>
+            <option value="0.5">🕓 Retardo</option>
+            <option value="0">❌ Falta</option>
+          </select>`;
+        fila.appendChild(td);
+      });
+
+      guardarDatos();
+    }
+
+    function agregarAlumno() {
+      const fila = document.createElement('tr');
+      let celdas = `<td><input type="text" placeholder="Nombre completo"></td>`;
+      for (let i = 0; i < numDias; i++) {
+        celdas += `<td>
+          <select>
+            <option value="1">✔️ Asistió</option>
+            <option value="0.5">🕓 Retardo</option>
+            <option value="0">❌ Falta</option>
+          </select></td>`;
+      }
+      fila.innerHTML = celdas;
+      cuerpo.appendChild(fila);
+      guardarDatos();
+    }
+
+    function calcularTotales() {
+      const filas = cuerpo.querySelectorAll('tr');
+      let resultado = "";
+      filas.forEach(fila => {
+        const nombre = fila.querySelector('input').value || "Sin nombre";
+        const selects = fila.querySelectorAll('select');
+        let suma = 0;
+        selects.forEach(s => suma += parseFloat(s.value));
+        const porcentaje = ((suma / numDias) * 100).toFixed(1);
+        resultado += `${nombre}: ${suma.toFixed(1)} (${porcentaje}%)<br>`;
+      });
+      resultadoDias.innerHTML = resultado;
+      guardarDatos();
+    }
+
+    function guardarDatos() {
+      localStorage.setItem('tablaAsistencia', tabla.outerHTML);
+      localStorage.setItem('numDias', numDias);
+    }
+
+    function borrarDatos() {
+      if (confirm("¿Seguro que deseas borrar todos los datos?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    // restaurar si hay datos guardados
+    window.onload = () => {
+      if (localStorage.getItem('tablaAsistencia')) {
+        document.querySelector('main').innerHTML = localStorage.getItem('tablaAsistencia');
+        numDias = parseInt(localStorage.getItem('numDias')) || 1;
+      }
+    };
+  </script>
+</body>
+</html>
